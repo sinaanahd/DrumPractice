@@ -1,4 +1,4 @@
-import type { Exercise, PracticeSession, RoadmapItem, Settings } from '../types'
+import type { Exercise, FoundationSkill, PracticeSession, RoadmapGroup, RoadmapItem, Settings } from '../types'
 
 const base = (exercise: Omit<Exercise, 'id'> & { id: string }): Exercise => exercise
 
@@ -21,10 +21,22 @@ export const seedSession = (): PracticeSession => ({
   exercises: seedExercises.map((exercise, order) => ({ id: crypto.randomUUID(), exerciseId: exercise.id, order, bpm: exercise.bpm, durationSeconds: exercise.durationSeconds, repetitions: exercise.repetitions, optional: exercise.optional }))
 })
 
-export const defaultSettings: Settings = { id: 'settings', theme: 'system', defaultSessionDuration: 40, metronomeVolume: 0.55, countIn: true, currentPhase: 'Foundation', workingBpm: 65, foundationBpm: 60, challengeBpm: 70 }
+export const defaultSettings: Settings = { id: 'settings', theme: 'system', defaultSessionDuration: 40, metronomeVolume: 0.55, countIn: true, currentPhase: 'Foundation', currentFocus: 'Timing + subdivisions', workingBpm: 65, foundationBpm: 60, challengeBpm: 70, configurationSeedVersion: 2 }
+
+export const seedRoadmapGroups: RoadmapGroup[] = [
+  { id: 'current', name: 'Now · Foundation', order: 0 },
+  { id: 'upcoming', name: 'Upcoming', order: 1 },
+  { id: 'later', name: 'Later · Drum kit', order: 2 }
+]
 
 export const seedRoadmap: RoadmapItem[] = [
-  ...['Quarter notes', 'Eighth notes', 'Singles', 'Doubles', 'Lead changes', 'Subdivision transitions', 'Internal pulse', 'Early sixteenths'].map((name, index) => ({ id: `current-${index}`, name, phase: 'current' as const, complete: index < 3 })),
-  ...['Accents', 'Paradiddles', 'Triplets', 'Rests', 'Basic reading', 'More foot coordination'].map((name, index) => ({ id: `upcoming-${index}`, name, phase: 'upcoming' as const, complete: false })),
-  ...['Hi-hat/snare coordination', 'Kick coordination', 'Basic rock grooves', 'Fills', 'Dynamics', 'Song practice', 'Advanced coordination'].map((name, index) => ({ id: `later-${index}`, name, phase: 'later' as const, complete: false }))
+  ...['Quarter notes', 'Eighth notes', 'Singles', 'Doubles', 'Lead changes', 'Subdivision transitions', 'Internal pulse', 'Early sixteenths'].map((title, order) => ({ id: `current-${order}`, title, groupId: 'current', order, status: order < 3 ? 'comfortable' as const : 'developing' as const })),
+  ...['Accents', 'Paradiddles', 'Triplets', 'Rests', 'Basic reading', 'More foot coordination'].map((title, order) => ({ id: `upcoming-${order}`, title, groupId: 'upcoming', order, status: 'planned' as const })),
+  ...['Hi-hat/snare coordination', 'Kick coordination', 'Basic rock grooves', 'Fills', 'Dynamics', 'Song practice', 'Advanced coordination'].map((title, order) => ({ id: `later-${order}`, title, groupId: 'later', order, status: 'planned' as const }))
 ]
+
+const foundationExerciseIds = ['quarters-60', 'eighths-leads', 'quarter-eighth', 'singles-doubles', 'rest-return', 'sixteenth-bursts', 'foot-coordination']
+export const seedFoundationSkills: FoundationSkill[] = foundationExerciseIds.map((id, order) => {
+  const exercise = seedExercises.find((item) => item.id === id)!
+  return { id: `skill-${id}`, name: exercise.name, description: exercise.description, level: exercise.status, notes: exercise.notes, order }
+})

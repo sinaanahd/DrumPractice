@@ -7,6 +7,7 @@ import { PageHeader } from '../components/PageHeader'
 import { Metronome } from '../components/Metronome'
 import { PracticeMode } from '../features/sessions/PracticeMode'
 import { SessionEditor } from '../features/sessions/SessionEditor'
+import { TrainingContextCard } from '../features/configuration/TrainingContextCard'
 import { activeSessionStore, useActiveSession } from '../store/activeSession'
 import { formatDate } from '../utils/calculations'
 
@@ -23,7 +24,7 @@ export function TodayPage() {
   const latestTiming = results.filter((r) => r.targetBpm != null && r.measuredBpm != null).at(-1)
   const recent = sessions?.find((item) => item.status === 'completed' || item.status === 'partial')
   return <>
-    <PageHeader eyebrow="TODAY'S PRACTICE" title={`Day ${session.dayNumber}`} subtitle={`${formatDate(session.date)} · ${session.phase} phase`} action={<Button variant="secondary" onClick={() => setEditing(true)} icon={<Edit3 size={17}/>}>Edit plan</Button>}/>
+    <PageHeader eyebrow="TODAY'S PRACTICE" title={`Day ${session.dayNumber}`} subtitle={`${formatDate(session.date)} · ${settings.currentPhase} phase`} action={<Button variant="secondary" onClick={() => setEditing(true)} icon={<Edit3 size={17}/>}>Edit plan</Button>}/>
     <section className="hero-card">
       <div className="hero-card__copy"><span className="pill pill--green">READY WHEN YOU ARE</span><h2>Build the pulse.<br/><em>Keep it relaxed.</em></h2><p>Today is about control through transitions. Speed is optional; a clean return to the pulse is the win.</p><div className="hero-meta"><span><Clock3 size={18}/><strong>{session.plannedDuration} min</strong><small>planned</small></span><span><Target size={18}/><strong>{session.exercises.length} exercises</strong><small>{session.exercises.filter((e) => e.optional).length} optional</small></span></div><Button className="start-button" onClick={async () => { await db.sessions.update(session.id, { status: 'active', startedAt: new Date().toISOString() }); activeSessionStore.set({ sessionId: session.id, index: 0 }) }} icon={<Play fill="currentColor" size={19}/>}>Start session <ArrowRight size={18}/></Button></div>
       <div className="hero-card__tempo"><Metronome prescribedBpm={settings.workingBpm} defaultVolume={settings.metronomeVolume}/></div>
@@ -33,7 +34,7 @@ export function TodayPage() {
         <ol>{session.exercises.sort((a,b) => a.order-b.order).map((item, index) => { const exercise = exercises.find((e) => e.id === item.exerciseId); if (!exercise) return null; return <li key={item.id}><span className="step-number">{String(index + 1).padStart(2,'0')}</span><div><strong>{exercise.name}</strong><small>{item.bpm ? `${item.bpm} BPM` : 'No click'} · {item.durationSeconds ? `${Math.ceil(item.durationSeconds/60)} min` : `${item.repetitions} reps`}</small></div><span className={`status-tag status-tag--${exercise.status.toLowerCase()}`}>{item.optional ? 'Optional' : exercise.status}</span></li> })}</ol>
       </section>
       <aside className="side-stack">
-        <section className="panel focus-card"><span className="eyebrow">CURRENT FOCUS</span><h2>Timing + subdivisions</h2><p>Keep the pulse unchanged when the note value changes.</p><div className="tempo-row"><span><small>FOUNDATION</small><strong>{settings.foundationBpm} BPM</strong></span><i/><span><small>WORKING</small><strong>{settings.workingBpm} BPM</strong></span><i/><span><small>CHALLENGE</small><strong>{settings.challengeBpm} BPM</strong></span></div></section>
+        <TrainingContextCard settings={settings}/>
         <section className="panel recovery-card"><div className="recovery-icon"><RotateCcw/></div><div><span className="eyebrow">WHEN IT GETS DIFFICULT</span><h2>Recovery protocol</h2></div>{['Slow down','Shorten the pattern','Isolate the problem','Count aloud','Rebuild the pattern'].map((text, i) => <div className="recovery-step" key={text}><span>{i+1}</span>{text}</div>)}<p>Returning to a simpler pulse is good technique—not failure.</p></section>
         <section className="panel quick-progress"><div className="panel__header"><div><span className="eyebrow">QUICK LOOK</span><h2>Latest progress</h2></div></div><div className="quick-stat"><span>Internal timing</span><strong>{latestTiming ? `${latestTiming.measuredBpm! - latestTiming.targetBpm! > 0 ? '+' : ''}${latestTiming.measuredBpm! - latestTiming.targetBpm!} BPM` : 'Not logged yet'}</strong></div><div className="quick-stat"><span>Recent session</span><strong>{recent ? `Day ${recent.dayNumber} · ${recent.status}` : 'Your journey starts here'}</strong></div></section>
       </aside>

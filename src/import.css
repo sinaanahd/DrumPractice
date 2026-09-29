@@ -121,3 +121,56 @@
   .composer-row .check-label { display: none; }
   .session-detail .modal-actions { flex-wrap: wrap; }
 }
+
+.training-context .panel__header { align-items: flex-start; }
+.training-context .panel__header .button { min-height: 34px; padding: 0 8px; font-size: 11px; }
+.training-context .panel__header .button svg { width: 15px; }
+.training-context--progress { margin-bottom: 20px; }
+.training-context--progress .tempo-row { max-width: 620px; }
+
+.configuration-form { display: grid; gap: 15px; }
+.configuration-form label { display: grid; gap: 7px; }
+.configuration-form label > span { font-size: 11px; font-weight: 700; }
+.configuration-form em { font-style: normal; font-weight: 400; color: var(--muted); }
+.configuration-form input,
+.configuration-form select,
+.configuration-form textarea { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 10px; }
+.configuration-form textarea { resize: vertical; }
+.configuration-form__columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.form-hint { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+.configuration-panel .panel__header { align-items: flex-start; }
+.configuration-panel .panel__header .button { white-space: nowrap; }
+.configuration-actions { display: flex; align-items: center; gap: 2px; }
+.configuration-actions button { width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--muted); }
+.configuration-actions button:hover:not(:disabled) { color: var(--ink); background: var(--surface-2); }
+.configuration-actions button.danger:hover:not(:disabled) { color: var(--danger); }
+.configuration-actions button:disabled { opacity: .25; cursor: not-allowed; }
+.configuration-actions svg { width: 14px; }
+
+.foundation-skill-list { margin-top: 12px; }
+.skill-row--editable { grid-template-columns: minmax(150px, 1.2fr) minmax(90px, .8fr) 90px auto; }
+.skill-row--editable > div:first-child small { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+.roadmap-groups { display: grid; gap: 14px; margin-top: 14px; }
+.roadmap-group--editable { margin: 0; padding: 13px; border: 1px solid var(--line); border-radius: 11px; }
+.roadmap-group--editable > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.roadmap-group--editable > header > strong { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.roadmap-group--editable > .roadmap-items { display: grid; gap: 5px; margin: 8px 0; }
+.roadmap-items article { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding: 8px 0; }
+.roadmap-items article > div:first-child { display: grid; }
+.roadmap-items article span,
+.roadmap-items article small { color: var(--muted); font-size: 10px; }
+.roadmap-group--editable > .button { min-height: 32px; padding: 0 7px; font-size: 11px; }
+
+@media (max-width: 720px) {
+  .configuration-form__columns { grid-template-columns: 1fr; }
+  .training-context .panel__header { display: flex; }
+  .training-context .tempo-row { gap: 3px; }
+  .skill-row--editable { grid-template-columns: 1fr auto; }
+  .skill-row--editable .skill-track { display: none; }
+  .skill-row--editable > .status-tag { grid-column: 1; }
+  .skill-row--editable > .configuration-actions { grid-column: 2; grid-row: 1 / span 2; }
+  .configuration-panel .panel__header { flex-direction: column; }
+  .configuration-panel .panel__header .button { width: 100%; }
+}

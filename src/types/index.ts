@@ -3,6 +3,7 @@ export type SkillStatus = 'New' | 'Developing' | 'Comfortable' | 'Solid'
 export type ResultState = 'Clean' | 'Good' | 'Some mistakes' | 'Difficult' | 'Failed / retry later'
 export type SessionStatus = 'planned' | 'active' | 'completed' | 'partial'
 export type ThemePreference = 'light' | 'dark' | 'system'
+export type RoadmapStatus = 'planned' | 'active' | 'developing' | 'comfortable' | 'solid'
 
 export interface Exercise {
   id: string
@@ -72,24 +73,46 @@ export interface Settings {
   metronomeVolume: number
   countIn: boolean
   currentPhase: string
+  currentFocus: string
   workingBpm: number
   foundationBpm: number
   challengeBpm: number
+  configurationSeedVersion: number
 }
 
 export interface RoadmapItem {
   id: string
+  title: string
+  description?: string
+  groupId: string
+  order: number
+  status?: RoadmapStatus
+  notes?: string
+}
+
+export interface RoadmapGroup {
+  id: string
   name: string
-  phase: 'current' | 'upcoming' | 'later'
-  complete: boolean
+  order: number
+}
+
+export interface FoundationSkill {
+  id: string
+  name: string
+  description?: string
+  level: SkillStatus
+  notes?: string
+  order: number
 }
 
 export interface BackupData {
-  version: number
+  version: 2
   exportedAt: string
   exercises: Exercise[]
   sessions: PracticeSession[]
   results: ExerciseResult[]
   settings: Settings
   roadmap: RoadmapItem[]
+  roadmapGroups: RoadmapGroup[]
+  foundationSkills: FoundationSkill[]
 }
