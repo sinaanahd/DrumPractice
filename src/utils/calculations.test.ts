@@ -18,6 +18,10 @@ describe('session calculations', () => {
     expect(sessionCompletion(session, [result('required-1'), result('required-2')])).toBe(100)
   })
 
+  it('shows completed legacy sessions without exercise-level grades as complete', () => {
+    expect(sessionCompletion({ ...session, exercises: [] }, [])).toBe(100)
+  })
+
   it('does not count skipped results as complete', () => {
     expect(sessionCompletion(session, [result('required-1', true)])).toBe(0)
   })

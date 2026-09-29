@@ -4,7 +4,7 @@ export const bpmDeviation = (target?: number, measured?: number) => target == nu
 
 export function sessionCompletion(session: PracticeSession, results: ExerciseResult[]): number {
   const required = session.exercises.filter((exercise) => !exercise.optional)
-  if (!required.length) return 0
+  if (!required.length) return session.status === 'completed' ? 100 : 0
   const doneIds = new Set(results.filter((result) => result.sessionId === session.id && !result.skipped).map((result) => result.sessionExerciseId))
   return Math.round((required.filter((exercise) => doneIds.has(exercise.id)).length / required.length) * 100)
 }
@@ -22,4 +22,4 @@ export function practiceMetrics(sessions: PracticeSession[]) {
 }
 
 export const formatDuration = (seconds: number) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
-export const formatDate = (date: string) => new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
+export const formatDate = (date: string) => date ? new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`)) : 'Date not recorded'

@@ -78,3 +78,9 @@ Dexie stores exercises, sessions, exercise results, preferences, and roadmap sta
 Settings → **Export data** downloads a versioned JSON file containing all application data. **Import data** validates the file shape and version before replacing the current database in one transaction. **Reset all data** requires explicit confirmation and restores the original foundation plan.
 
 Because browser storage can be cleared by the user or operating system, periodic exports are recommended.
+
+### Historical training imports
+
+Settings → **Import historical training data** accepts the separate `drum-practice-legacy-import` version 1 format. The app previews the completed/planned session counts and timing measurements before merging. Imports use stable source IDs, preserve unrelated records, update the current unstarted Day 14 plan in place, and safely skip unchanged data on repeated imports.
+
+Historical sessions without source dates remain labeled **Date not recorded**. Their original notes and summaries are retained without fabricated exercise grades. Timing measurements are stored as structured, ungraded exercise results so they can power the internal-timing progress graph while remaining linked to their source session.

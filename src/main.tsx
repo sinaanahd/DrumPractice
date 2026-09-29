@@ -4,6 +4,7 @@ import { registerSW } from 'virtual:pwa-register'
 import App from './App'
 import { initializeDatabase } from './db/database'
 import './styles.css'
+import './import.css'
 
 registerSW({ immediate: true })
 initializeDatabase().then(() => {
