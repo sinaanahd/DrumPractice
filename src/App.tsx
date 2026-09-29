@@ -1,13 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { AppShell } from './app/AppShell'
 import type { Page } from './app/types'
 import { db } from './db/database'
 import { ExercisesPage } from './pages/ExercisesPage'
-import { ProgressPage } from './pages/ProgressPage'
 import { SessionsPage } from './pages/SessionsPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { TodayPage } from './pages/TodayPage'
+
+const ProgressPage = lazy(() => import('./pages/ProgressPage').then((module) => ({ default: module.ProgressPage })))
 
 export default function App() {
   const [page, setPage] = useState<Page>('today')
@@ -18,5 +19,5 @@ export default function App() {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
   }, [settings])
   const content = { today: <TodayPage/>, sessions: <SessionsPage/>, progress: <ProgressPage/>, exercises: <ExercisesPage/>, settings: <SettingsPage/> }[page]
-  return <AppShell page={page} onPage={setPage}>{content}</AppShell>
+  return <AppShell page={page} onPage={setPage}><Suspense fallback={<div className="loading">Loading progress…</div>}>{content}</Suspense></AppShell>
 }
