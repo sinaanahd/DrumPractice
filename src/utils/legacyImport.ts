@@ -1,4 +1,5 @@
 import { db } from '../db/database'
+import { seedExercises } from '../data/seed'
 import type { Exercise, ExerciseCategory, ExerciseResult, PracticeSession, Settings, SkillStatus } from '../types'
 
 interface LegacyPlannedExercise {
@@ -135,6 +136,39 @@ function timingResult(test: LegacyTimingTest, index: number, sessionId: string):
   }
 }
 
+const historicalExerciseRules: Array<{ exerciseId: string; matches: RegExp }> = [
+  { exerciseId: 'warm-up', matches: /warm[ -]?up|grip|rebound|right[ -]only|left[ -]only/i },
+  { exerciseId: 'quarters-60', matches: /quarter(?:-note| note)s?/i },
+  { exerciseId: 'eighths-leads', matches: /eighth(?:-note| note)s?|lead changes?/i },
+  { exerciseId: 'quarter-eighth', matches: /quarter\s*(?:↔|to)\s*eighth|quarter-note to eighth-note|subdivision changes?/i },
+  { exerciseId: 'singles-doubles', matches: /\bdoubles?\b|RRLL|singles?\s*↔\s*doubles?/i },
+  { exerciseId: 'rest-return', matches: /play\s*[/→]\s*rest\s*[/→]\s*return|silent (?:bar|section)|return(?:ing)? (?:exactly )?on beat 1/i },
+  { exerciseId: 'sixteenth-bursts', matches: /sixteenth/i },
+  { exerciseId: 'consolidation-65', matches: /65 BPM/i },
+  { exerciseId: 'timing-test', matches: /no-metronome|timing data|timing check|counter without/i },
+  { exerciseId: 'challenge-70', matches: /70 BPM|challenge tempo/i },
+  { exerciseId: 'foot-coordination', matches: /foot coordination/i }
+]
+
+function historicalExercises(source: LegacySession, existingExercises: Exercise[]) {
+  const text = `${source.summary ?? ''}\n${source.generalNotes}`
+  const library = new Map([...seedExercises, ...existingExercises].map((exercise) => [exercise.id, exercise]))
+  return historicalExerciseRules
+    .filter((rule) => rule.matches.test(text) && library.has(rule.exerciseId))
+    .map((rule, order) => {
+      const exercise = library.get(rule.exerciseId)!
+      return {
+        id: `legacy-session-exercise-day-${String(source.dayNumber).padStart(2, '0')}-${exercise.id}`,
+        exerciseId: exercise.id,
+        order,
+        bpm: exercise.bpm,
+        durationSeconds: exercise.durationSeconds,
+        repetitions: exercise.repetitions,
+        optional: exercise.optional
+      }
+    })
+}
+
 function countRecord<T extends { id: string }>(next: T, existing: T | undefined, counts: ImportCounts, target: T[]) {
   if (!existing) { counts.created += 1; target.push(next); return }
   if (same(next, existing)) { counts.skipped += 1; return }
@@ -165,7 +199,7 @@ export function buildLegacyImportPlan(data: LegacyImportData, existing: Existing
       durationSeconds: item.durationSeconds ?? (item.durationMinutes ? item.durationMinutes * 60 : undefined),
       repetitions: typeof item.repetitions === 'number' ? item.repetitions : undefined,
       optional: item.optional
-    })) : []
+    })) : historicalExercises(source, existing.exercises)
     const session: PracticeSession = {
       id,
       dayNumber: source.dayNumber,

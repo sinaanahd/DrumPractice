@@ -3,9 +3,11 @@ import type { ExerciseResult, PracticeSession } from '../types'
 export const bpmDeviation = (target?: number, measured?: number) => target == null || measured == null ? undefined : measured - target
 
 export function sessionCompletion(session: PracticeSession, results: ExerciseResult[]): number {
+  const completedResults = results.filter((result) => result.sessionId === session.id && !result.skipped)
+  if (session.status === 'completed' && completedResults.length === 0 && session.notes?.includes('## Imported session data')) return 100
   const required = session.exercises.filter((exercise) => !exercise.optional)
   if (!required.length) return session.status === 'completed' ? 100 : 0
-  const doneIds = new Set(results.filter((result) => result.sessionId === session.id && !result.skipped).map((result) => result.sessionExerciseId))
+  const doneIds = new Set(completedResults.map((result) => result.sessionExerciseId))
   return Math.round((required.filter((exercise) => doneIds.has(exercise.id)).length / required.length) * 100)
 }
 

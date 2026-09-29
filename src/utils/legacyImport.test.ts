@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { seedExercises } from '../data/seed'
 import type { Exercise, ExerciseResult, PracticeSession } from '../types'
 import { buildLegacyImportPlan, type LegacyImportData, validateLegacyImport } from './legacyImport'
 
@@ -15,7 +16,9 @@ const legacyData = (): LegacyImportData => ({
     completionPercentage: index === 13 ? 0 : 100,
     workingBpm: index === 0 ? 60 : 65,
     summary: index === 0 ? 'First session.' : null,
-    generalNotes: `Notes for day ${index + 1}`,
+    generalNotes: index === 12
+      ? 'Warm-up, quarter notes, eighth notes, singles ↔ doubles, Play / Rest / Return, 65 BPM and a 70 BPM challenge.'
+      : `Warm-up, quarter notes and eighth notes at ${index === 0 ? 60 : 65} BPM. No-metronome timing check.`,
     plannedExercises: index === 13 ? [{ id: 'day14-warmup', order: 1, name: 'Warm-up', category: 'Warm-up', bpm: null, durationMinutes: 3, optional: false, status: 'Comfortable', instructions: ['Stay relaxed'] }] : undefined
   })),
   timingTests: [{ dayNumber: 3, targetBpm: 65, durationSeconds: 30, expectedHits: 65, observedHits: 69, deviationHits: 4 }]
@@ -23,7 +26,7 @@ const legacyData = (): LegacyImportData => ({
 
 const plannedDay14: PracticeSession = { id: 'existing-seed-day-14', dayNumber: 14, date: '2026-09-29', phase: 'Foundation', plannedDuration: 40, status: 'planned', exercises: [] }
 const customSession: PracticeSession = { id: 'personal-session', dayNumber: 99, date: '2026-01-01', phase: 'Personal', plannedDuration: 20, status: 'completed', exercises: [], notes: 'Keep me' }
-const emptyExisting = () => ({ sessions: [plannedDay14, customSession], exercises: [] as Exercise[], results: [] as ExerciseResult[] })
+const emptyExisting = () => ({ sessions: [plannedDay14, customSession], exercises: [...seedExercises] as Exercise[], results: [] as ExerciseResult[] })
 const mergeById = <T extends { id: string }>(existing: T[], next: T[]) => [...new Map([...existing, ...next].map((item) => [item.id, item])).values()]
 
 describe('legacy history import', () => {
@@ -38,6 +41,8 @@ describe('legacy history import', () => {
     expect(plan.sessionsToPut.filter((session) => session.status === 'completed')).toHaveLength(13)
     expect(plan.sessionsToPut.find((session) => session.dayNumber === 14)).toMatchObject({ id: plannedDay14.id, status: 'planned', plannedDuration: 40 })
     expect(plan.sessionsToPut.find((session) => session.dayNumber === 1)?.date).toBe('')
+    expect(plan.sessionsToPut.find((session) => session.dayNumber === 1)?.exercises.map((item) => item.exerciseId)).toEqual(['warm-up', 'quarters-60', 'eighths-leads', 'timing-test'])
+    expect(plan.sessionsToPut.find((session) => session.dayNumber === 13)?.exercises.map((item) => item.exerciseId)).toEqual(expect.arrayContaining(['singles-doubles', 'rest-return', 'challenge-70']))
   })
 
   it('links timing tests to their historical session without fabricating a completion grade', () => {
