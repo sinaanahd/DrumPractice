@@ -13,10 +13,12 @@ The app has no backend, account, analytics, or cloud dependency. Practice data r
 - Fast result logging with optional detail fields and a session summary
 - Editable, reorderable, duplicable, and inspectable sessions
 - Session history with lightweight filtering
-- Internal-timing deviation and tempo progress charts
+- Internal-timing deviation and historical tempo charts
 - Exercise library, skill status, practice history, and custom exercises
-- Foundation training roadmap and recovery protocol
+- Shared editable training context on Today and Progress
+- Editable Foundation Skills and grouped training roadmap
 - IndexedDB persistence, JSON export/import, and guarded reset
+- Reload-safe URL navigation that returns to the current page
 - Responsive light/dark/system themes
 - Installable PWA with offline precaching
 
@@ -73,9 +75,9 @@ The web server is only needed to deliver the installed files; Vite and Node do n
 
 ## Data persistence and backups
 
-Dexie stores exercises, sessions, exercise results, preferences, and roadmap state in the `tempo-drum-training` IndexedDB database. Reloading or closing the PWA does not discard an active or completed session.
+Dexie stores exercises, sessions, exercise results, preferences, roadmap groups/items, and Foundation Skills in the `tempo-drum-training` IndexedDB database. Reloading or closing the PWA does not discard an active or completed session.
 
-Settings → **Export data** downloads a versioned JSON file containing all application data. **Import data** validates the file shape and version before replacing the current database in one transaction. **Reset all data** requires explicit confirmation and restores the original foundation plan.
+Settings → **Export data** downloads a versioned JSON file containing all application data. **Import data** validates the file shape and version before replacing the current database in one transaction. Version-1 backups are upgraded during restore. **Reset all data** requires explicit confirmation and restores the original foundation plan.
 
 Because browser storage can be cleared by the user or operating system, periodic exports are recommended.
 

@@ -13,6 +13,10 @@ const ProgressPage = lazy(() => import('./pages/ProgressPage').then((module) => 
 export default function App() {
   const [page, setPage] = useState<Page>(() => pageFromHash(window.location.hash))
   const settings = useLiveQuery(() => db.settings.get('settings'), [])
+  const currentSession = useLiveQuery(async () => {
+    const sessions = await db.sessions.orderBy('dayNumber').reverse().toArray()
+    return sessions.find((session) => session.status === 'planned' || session.status === 'active') ?? sessions[0]
+  }, [])
   useEffect(() => {
     if (!settings) return
     const dark = settings.theme === 'dark' || settings.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches
@@ -29,5 +33,6 @@ export default function App() {
     setPage(next)
   }
   const content = { today: <TodayPage/>, sessions: <SessionsPage/>, progress: <ProgressPage/>, exercises: <ExercisesPage/>, settings: <SettingsPage/> }[page]
-  return <AppShell page={page} onPage={navigate}><Suspense fallback={<div className="loading">Loading progress…</div>}>{content}</Suspense></AppShell>
+  const contextLabel = `${settings?.currentPhase ?? 'Foundation'} · Day ${currentSession?.dayNumber ?? '—'}`.toUpperCase()
+  return <AppShell page={page} onPage={navigate} contextLabel={contextLabel}><Suspense fallback={<div className="loading">Loading progress…</div>}>{content}</Suspense></AppShell>
 }
