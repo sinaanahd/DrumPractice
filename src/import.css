@@ -104,6 +104,9 @@
 .composer-row .check-label input { width: auto; }
 .composer-levels { display: flex; align-items: center; justify-content: space-between; gap: 3px; }
 .composer-levels button { width: 25px; height: 29px; padding: 0; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--muted); }
+.composer-levels button { position: relative; }
+.composer-levels button::after { content: attr(data-tooltip); position: absolute; z-index: 10; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%) translateY(3px); padding: 5px 7px; border-radius: 6px; background: var(--ink); color: var(--surface); font-size: 9px; font-weight: 700; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s ease, transform .15s ease; }
+.composer-levels button:hover::after, .composer-levels button:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 .composer-levels button svg { width: 14px; height: 14px; }
 .composer-levels button:hover { border-color: var(--accent); color: var(--accent); }
 .composer-levels button.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
