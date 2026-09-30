@@ -11,7 +11,7 @@ import { db } from '../db/database'
 import { SessionComposer } from '../features/sessions/SessionComposer'
 import { activeSessionStore } from '../store/activeSession'
 import type { PracticeSession } from '../types'
-import { formatDate, sessionCompletion } from '../utils/calculations'
+import { formatDate, noMetronomeTestResult, sessionCompletion } from '../utils/calculations'
 
 type Filter = 'All' | 'Completed' | 'Partial' | 'Difficult'
 
@@ -68,12 +68,12 @@ export function SessionsPage() {
     {filtered.length ? <div className="session-list">{filtered.map((session) => {
       const sessionResults = results.filter((result) => result.sessionId === session.id)
       const completion = sessionCompletion(session, results)
-      const workingBpm = sessionResults.map((result) => result.bpmUsed ?? 0).sort((a, b) => b - a)[0]
+      const noMetronomeTestValue = noMetronomeTestResult(session, sessionResults)
       const difficult = sessionResults.filter((result) => result.state === 'Difficult' || result.state === 'Failed / retry later').length
       return <article className="session-card" key={session.id}>
         <div className="session-day"><span>{String(session.dayNumber).padStart(2, '0')}</span><small>DAY</small></div>
         <button className="session-primary session-card__open" onClick={() => setSelected(session)}><strong>{formatDate(session.date)}</strong><span>{session.phase} phase · {session.exercises.length} exercises</span></button>
-        <div className="session-data"><span><small>DURATION</small><strong>{durationLabel(session)}</strong></span><span><small>COMPLETION</small><strong>{completion}%</strong></span><span><small>WORKING BPM</small><strong>{workingBpm || '—'}</strong></span></div>
+        <div className="session-data"><span><small>DURATION</small><strong>{durationLabel(session)}</strong></span><span><small>COMPLETION</small><strong>{completion}%</strong></span><span><small>NO-METRONOME TEST</small><strong>{noMetronomeTestValue ?? '—'}</strong></span></div>
         <div className="session-result"><SatisfactionArc value={session.satisfaction} compact/><div><span className={`session-state session-state--${session.status}`}>{session.status}</span>{difficult > 0 && <small>{difficult} difficult</small>}{session.notes && <FileText size={15}/>}</div></div>
         <div className="session-card__actions"><button aria-label={`Edit Day ${session.dayNumber}`} title="Edit session" onClick={() => setEditing(session)}><Pencil/></button><button className="danger" aria-label={`Delete Day ${session.dayNumber}`} title="Delete session" onClick={() => setDeleting(session)}><Trash2/></button><button aria-label={`View Day ${session.dayNumber}`} title="View session" onClick={() => setSelected(session)}><ChevronRight/></button></div>
       </article>

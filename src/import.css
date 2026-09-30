@@ -74,10 +74,12 @@
 .composer-picker label,
 .composer-row label,
 .composer-notes { display: grid; gap: 6px; }
+.composer-meta label { align-content: start; }
 .composer-meta label > span,
 .composer-picker label > span,
 .composer-row label > span,
 .composer-notes > span { font-size: 10px; font-weight: 700; color: var(--muted); }
+.composer-meta .no-metronome-input small { min-height: 14px; font-size: 10px; color: var(--muted); }
 .composer-meta input,
 .composer-meta select,
 .composer-picker select,
@@ -90,6 +92,8 @@
   background: var(--bg);
   padding: 9px 10px;
 }
+.composer-meta input,
+.composer-meta select { height: 39px; }
 .composer-picker { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px; }
 .composer-list { display: grid; gap: 7px; }
 .composer-empty { border: 1px dashed var(--line); border-radius: 10px; padding: 24px; text-align: center; color: var(--muted); font-size: 12px; }

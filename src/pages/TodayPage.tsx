@@ -9,7 +9,7 @@ import { PracticeMode } from '../features/sessions/PracticeMode'
 import { SessionEditor } from '../features/sessions/SessionEditor'
 import { TrainingContextCard } from '../features/configuration/TrainingContextCard'
 import { activeSessionStore, useActiveSession } from '../store/activeSession'
-import { formatDate } from '../utils/calculations'
+import { formatDate, noMetronomeTestResult } from '../utils/calculations'
 
 export function TodayPage() {
   const sessions = useLiveQuery(() => db.sessions.orderBy('dayNumber').reverse().toArray(), [])
@@ -21,7 +21,7 @@ export function TodayPage() {
   const session = useMemo(() => active.sessionId ? sessions?.find((item) => item.id === active.sessionId) : sessions?.find((item) => item.status === 'planned' || item.status === 'active') ?? sessions?.[0], [sessions, active.sessionId])
   if (!session || !exercises || !results || !settings) return <div className="loading">Loading your practice space…</div>
   if (active.sessionId === session.id || session.status === 'active') return <PracticeMode session={session} exercises={exercises} results={results} settings={settings}/>
-  const latestTiming = results.filter((r) => r.targetBpm != null && r.measuredBpm != null).at(-1)
+  const latestTiming = (sessions ?? []).map((item) => noMetronomeTestResult(item, results)).find((value) => value != null)
   const recent = sessions?.find((item) => item.status === 'completed' || item.status === 'partial')
   return <>
     <PageHeader eyebrow="TODAY'S PRACTICE" title={`Day ${session.dayNumber}`} subtitle={`${formatDate(session.date)} · ${settings.currentPhase} phase`} action={<Button variant="secondary" onClick={() => setEditing(true)} icon={<Edit3 size={17}/>}>Edit plan</Button>}/>
@@ -36,7 +36,7 @@ export function TodayPage() {
       <aside className="side-stack">
         <TrainingContextCard settings={settings}/>
         <section className="panel recovery-card"><div className="recovery-icon"><RotateCcw/></div><div><span className="eyebrow">WHEN IT GETS DIFFICULT</span><h2>Recovery protocol</h2></div>{['Slow down','Shorten the pattern','Isolate the problem','Count aloud','Rebuild the pattern'].map((text, i) => <div className="recovery-step" key={text}><span>{i+1}</span>{text}</div>)}<p>Returning to a simpler pulse is good technique—not failure.</p></section>
-        <section className="panel quick-progress"><div className="panel__header"><div><span className="eyebrow">QUICK LOOK</span><h2>Latest progress</h2></div></div><div className="quick-stat"><span>Internal timing</span><strong>{latestTiming ? `${latestTiming.measuredBpm! - latestTiming.targetBpm! > 0 ? '+' : ''}${latestTiming.measuredBpm! - latestTiming.targetBpm!} BPM` : 'Not logged yet'}</strong></div><div className="quick-stat"><span>Recent session</span><strong>{recent ? `Day ${recent.dayNumber} · ${recent.status}` : 'Your journey starts here'}</strong></div></section>
+        <section className="panel quick-progress"><div className="panel__header"><div><span className="eyebrow">QUICK LOOK</span><h2>Latest progress</h2></div></div><div className="quick-stat"><span>No-metronome test</span><strong>{latestTiming ?? 'Not logged yet'}</strong></div><div className="quick-stat"><span>Recent session</span><strong>{recent ? `Day ${recent.dayNumber} · ${recent.status}` : 'Your journey starts here'}</strong></div></section>
       </aside>
     </div>
     {editing && <SessionEditor session={session} exercises={exercises} onClose={() => setEditing(false)}/>} 

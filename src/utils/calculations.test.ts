@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ExerciseResult, PracticeSession } from '../types'
-import { bpmDeviation, practiceMetrics, sessionCompletion } from './calculations'
+import { bpmDeviation, noMetronomeTestResult, practiceMetrics, sessionCompletion } from './calculations'
 
 const session: PracticeSession = {
   id: 'session-1', dayNumber: 14, date: new Date().toISOString().slice(0, 10), phase: 'Foundation', plannedDuration: 40, actualDuration: 36, status: 'completed',
@@ -30,6 +30,15 @@ describe('session calculations', () => {
     expect(bpmDeviation(65, 69)).toBe(4)
     expect(bpmDeviation(65, 62)).toBe(-3)
     expect(bpmDeviation(65, undefined)).toBeUndefined()
+  })
+
+  it('returns the no-metronome test value without imposing a target', () => {
+    expect(noMetronomeTestResult({ ...session, noMetronomeTestValue: 69 })).toBe(69)
+    expect(noMetronomeTestResult(session)).toBeUndefined()
+  })
+
+  it('uses earlier measured timing-test data when a session has no direct value yet', () => {
+    expect(noMetronomeTestResult(session, [{ ...result('timing-1'), targetBpm: 65, measuredBpm: 67 }])).toBe(67)
   })
 
   it('summarizes practice time and sessions', () => {

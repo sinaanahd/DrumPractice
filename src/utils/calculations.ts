@@ -1,5 +1,10 @@
 import type { ExerciseResult, PracticeSession } from '../types'
 
+export function noMetronomeTestResult(session: PracticeSession, results: ExerciseResult[] = []) {
+  if (session.noMetronomeTestValue != null) return session.noMetronomeTestValue
+  return results.filter((result) => result.sessionId === session.id && result.targetBpm != null && result.measuredBpm != null).at(-1)?.measuredBpm
+}
+
 export const bpmDeviation = (target?: number, measured?: number) => target == null || measured == null ? undefined : measured - target
 
 export function sessionCompletion(session: PracticeSession, results: ExerciseResult[]): number {

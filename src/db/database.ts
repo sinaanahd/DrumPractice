@@ -40,6 +40,19 @@ class DrumDatabase extends Dexie {
         if (!result.performanceLevel) result.performanceLevel = levelFromResultState(result.state)
       })
     })
+    this.version(5).stores({ sessions: 'id, dayNumber, date, status' }).upgrade(async (transaction) => {
+      const results = await transaction.table('results').toArray() as ExerciseResult[]
+      const legacyValues = new Map<string, number>()
+      results.forEach((result) => {
+        if (result.targetBpm != null && result.measuredBpm != null) legacyValues.set(result.sessionId, result.measuredBpm)
+      })
+      await transaction.table('sessions').toCollection().modify((session: PracticeSession) => {
+        if (session.noMetronomeTestValue == null) {
+          const value = legacyValues.get(session.id)
+          if (value != null) session.noMetronomeTestValue = value
+        }
+      })
+    })
   }
 }
 
