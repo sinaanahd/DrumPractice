@@ -17,7 +17,7 @@ export const seedExercises: Exercise[] = [
 ]
 
 export const seedSession = (): PracticeSession => ({
-  id: crypto.randomUUID(), dayNumber: 14, date: new Date().toISOString().slice(0, 10), phase: 'Foundation', plannedDuration: 40, status: 'planned',
+  id: crypto.randomUUID(), dayNumber: 14, date: new Date().toISOString().slice(0, 10), phase: 'Foundation', plannedDuration: 40, status: 'planned', satisfaction: 100,
   exercises: seedExercises.map((exercise, order) => ({ id: crypto.randomUUID(), exerciseId: exercise.id, order, bpm: exercise.bpm, durationSeconds: exercise.durationSeconds, repetitions: exercise.repetitions, optional: exercise.optional }))
 })
 

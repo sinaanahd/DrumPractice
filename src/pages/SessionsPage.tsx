@@ -5,6 +5,7 @@ import { Button } from '../components/Button'
 import { EmptyState } from '../components/EmptyState'
 import { Modal } from '../components/Modal'
 import { PageHeader } from '../components/PageHeader'
+import { SatisfactionArc } from '../components/SatisfactionArc'
 import { db } from '../db/database'
 import { SessionComposer } from '../features/sessions/SessionComposer'
 import { activeSessionStore } from '../store/activeSession'
@@ -38,6 +39,7 @@ export function SessionsPage() {
       status: 'planned',
       actualDuration: undefined,
       energy: undefined,
+      satisfaction: 100,
       startedAt: undefined,
       completedAt: undefined,
       exercises: source.exercises.map((item) => ({ ...item, id: crypto.randomUUID() }))
@@ -71,13 +73,13 @@ export function SessionsPage() {
         <div className="session-day"><span>{String(session.dayNumber).padStart(2, '0')}</span><small>DAY</small></div>
         <button className="session-primary session-card__open" onClick={() => setSelected(session)}><strong>{formatDate(session.date)}</strong><span>{session.phase} phase · {session.exercises.length} exercises</span></button>
         <div className="session-data"><span><small>DURATION</small><strong>{durationLabel(session)}</strong></span><span><small>COMPLETION</small><strong>{completion}%</strong></span><span><small>WORKING BPM</small><strong>{workingBpm || '—'}</strong></span></div>
-        <div className="session-result"><span className={`session-state session-state--${session.status}`}>{session.status}</span>{difficult > 0 && <small>{difficult} difficult</small>}{session.notes && <FileText size={15}/>}</div>
+        <div className="session-satisfaction"><SatisfactionArc value={session.satisfaction} compact/></div><div className="session-result"><span className={`session-state session-state--${session.status}`}>{session.status}</span>{difficult > 0 && <small>{difficult} difficult</small>}{session.notes && <FileText size={15}/>}</div>
         <div className="session-card__actions"><button aria-label={`Edit Day ${session.dayNumber}`} title="Edit session" onClick={() => setEditing(session)}><Pencil/></button><button className="danger" aria-label={`Delete Day ${session.dayNumber}`} title="Delete session" onClick={() => setDeleting(session)}><Trash2/></button><button aria-label={`View Day ${session.dayNumber}`} title="View session" onClick={() => setSelected(session)}><ChevronRight/></button></div>
       </article>
     })}</div> : <EmptyState icon={<CalendarDays/>} title="No sessions here yet" message="Create a session by choosing exercises from your library."/>}
 
     {selected && <Modal title={`Day ${selected.dayNumber} · ${formatDate(selected.date)}`} onClose={() => setSelected(undefined)} wide><div className="session-detail">
-      <div className="detail-stats"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>DURATION</small><strong>{selected.actualDuration ?? selected.plannedDuration} min</strong></span><span><small>COMPLETION</small><strong>{sessionCompletion(selected, results)}%</strong></span></div>
+      <div className="detail-stats"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>DURATION</small><strong>{selected.actualDuration ?? selected.plannedDuration} min</strong></span><span><small>COMPLETION</small><strong>{sessionCompletion(selected, results)}%</strong></span><SatisfactionArc value={selected.satisfaction}/></div>
       <div className="detail-exercises">{[...selected.exercises].sort((a, b) => a.order - b.order).map((item) => { const exercise = exercises.find((entry) => entry.id === item.exerciseId); const result = results.find((entry) => entry.sessionExerciseId === item.id); return <div key={item.id}><div><strong>{exercise?.name ?? 'Removed exercise'}</strong><span>{item.bpm ? `${item.bpm} BPM` : 'No click'}</span></div><span className={result ? `result-chip result-chip--${result.state.toLowerCase().replaceAll(' ', '-').replaceAll('/', '')}` : 'result-chip'}>{result?.skipped ? 'Skipped' : result?.state ?? (selected.status === 'completed' ? 'Legacy · ungraded' : 'Not logged')}</span></div>})}</div>
       {selected.notes && <div className="session-note"><small>SESSION NOTES</small><p>{selected.notes}</p></div>}
       <div className="modal-actions"><Button variant="ghost" icon={<Trash2/>} onClick={() => { setDeleting(selected); setSelected(undefined) }}>Delete</Button><Button variant="secondary" icon={<Pencil/>} onClick={() => { setEditing(selected); setSelected(undefined) }}>Edit</Button><Button variant="secondary" icon={<Copy/>} onClick={async () => { await duplicateSession(selected); setSelected(undefined) }}>Duplicate as new</Button><Button onClick={() => setSelected(undefined)}>Done</Button></div>

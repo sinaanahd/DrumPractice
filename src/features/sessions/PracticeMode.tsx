@@ -40,7 +40,7 @@ export function PracticeMode({ session, exercises, results, settings }: { sessio
   if (!exercise || !current) return null
   const done = sessionResults.some((result) => result.sessionExerciseId === current.id)
   const go = (index: number) => activeSessionStore.set({ index: Math.max(0, Math.min(ordered.length - 1, index)), timerSeconds: 0, timerRunning: false })
-  const finish = async () => { const start = session.startedAt ? new Date(session.startedAt).getTime() : Date.now(); await db.sessions.update(session.id, { status: 'completed', completedAt: new Date().toISOString(), actualDuration: Math.max(1, Math.round((Date.now() - start) / 60000)) }); setFinishing(true) }
+  const finish = async () => { const start = session.startedAt ? new Date(session.startedAt).getTime() : Date.now(); await db.sessions.update(session.id, { status: 'completed', completedAt: new Date().toISOString(), actualDuration: session.actualDuration ?? Math.max(1, Math.round((Date.now() - start) / 60000)) }); setFinishing(true) }
   return <div className="practice-mode">
     <header className="practice-header"><button onClick={async () => { await db.sessions.update(session.id, { status: 'planned' }); activeSessionStore.reset() }}><ChevronLeft/> Exit practice</button><div><span>DAY {session.dayNumber}</span><strong>{active.index + 1} <i>/</i> {ordered.length}</strong></div><button className="end-link" onClick={finish}>Finish session</button></header>
     <div className="practice-progress"><span style={{ width: `${((active.index + 1) / ordered.length) * 100}%` }}/></div>

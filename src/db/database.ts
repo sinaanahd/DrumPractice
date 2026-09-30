@@ -29,6 +29,11 @@ class DrumDatabase extends Dexie {
       await transaction.table('foundationSkills').bulkAdd(seedFoundationSkills)
       await transaction.table('settings').update('settings', { currentFocus: defaultSettings.currentFocus, configurationSeedVersion: 2 })
     })
+    this.version(3).stores({ sessions: 'id, dayNumber, date, status' }).upgrade(async (transaction) => {
+      await transaction.table('sessions').toCollection().modify((session: PracticeSession) => {
+        if (session.satisfaction === undefined) session.satisfaction = 100
+      })
+    })
   }
 }
 
@@ -38,6 +43,9 @@ export async function initializeDatabase() {
   await db.transaction('rw', [db.exercises, db.sessions, db.settings, db.roadmap, db.roadmapGroups, db.foundationSkills], async () => {
     if (await db.exercises.count() === 0) await db.exercises.bulkAdd(seedExercises)
     if (await db.sessions.count() === 0) await db.sessions.add(seedSession())
+    await db.sessions.toCollection().modify((session) => {
+      if (session.satisfaction === undefined) session.satisfaction = 100
+    })
     const settings = await db.settings.get('settings')
     if (!settings) await db.settings.add(defaultSettings)
     if (!settings || (settings.configurationSeedVersion ?? 0) < 2) {

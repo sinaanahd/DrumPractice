@@ -60,6 +60,7 @@ export interface PracticeSession {
   actualDuration?: number
   status: SessionStatus
   exercises: SessionExercise[]
+  satisfaction?: number
   energy?: number
   notes?: string
   startedAt?: string
