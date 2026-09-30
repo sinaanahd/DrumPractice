@@ -93,7 +93,7 @@
 .composer-picker { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px; }
 .composer-list { display: grid; gap: 7px; }
 .composer-empty { border: 1px dashed var(--line); border-radius: 10px; padding: 24px; text-align: center; color: var(--muted); font-size: 12px; }
-.composer-row { display: grid; grid-template-columns: 32px minmax(150px, 1fr) 72px 72px 78px 32px; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.composer-row { display: grid; grid-template-columns: 32px minmax(150px, 1fr) 72px 72px 78px 142px 32px; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
 .composer-order { display: grid; }
 .composer-order button { border: 0; background: transparent; color: var(--muted); height: 21px; }
 .composer-order button:disabled { opacity: .25; }
@@ -102,6 +102,15 @@
 .composer-name span { color: var(--muted); font-size: 10px; }
 .composer-row .check-label { display: flex; gap: 6px; }
 .composer-row .check-label input { width: auto; }
+.composer-levels { display: flex; align-items: center; justify-content: space-between; gap: 3px; }
+.composer-levels button { width: 25px; height: 29px; padding: 0; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--muted); }
+.composer-levels button svg { width: 14px; height: 14px; }
+.composer-levels button:hover { border-color: var(--accent); color: var(--accent); }
+.composer-levels button.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.composer-levels button.selected.performance-level--idiot { background: #f5ded9; border-color: #c5544d; color: #9f403b; }
+.composer-levels button.selected.performance-level--beginner { background: #f6e6d0; border-color: #c97a38; color: #a55e20; }
+.composer-levels button.selected.performance-level--growing { background: #fbefc7; border-color: #c3923c; color: #966e1b; }
+.composer-levels button.selected.performance-level--god-mode { background: #eae1f5; border-color: #7050a0; color: #7050a0; }
 .composer-notes em { font-style: normal; font-weight: 400; }
 
 @media (max-width: 1050px) {
@@ -119,6 +128,7 @@
   .composer-row { grid-template-columns: 28px 1fr 62px 30px; }
   .composer-row label:nth-of-type(2),
   .composer-row .check-label { display: none; }
+  .composer-levels { grid-column: 2 / 4; grid-row: 2; }
   .session-detail .modal-actions { flex-wrap: wrap; }
 }
 

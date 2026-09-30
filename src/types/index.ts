@@ -33,6 +33,7 @@ export interface SessionExercise {
   durationSeconds?: number
   repetitions?: number
   optional: boolean
+  performanceLevel?: PerformanceLevel
 }
 
 export interface ExerciseResult {
