@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Exercise, ExerciseResult, FoundationSkill, PracticeSession, RoadmapGroup, RoadmapItem, Settings } from '../types'
+import { levelFromResultState } from '../components/ExerciseLevelBadge'
 import { defaultSettings, seedExercises, seedFoundationSkills, seedRoadmap, seedRoadmapGroups, seedSession } from '../data/seed'
 
 class DrumDatabase extends Dexie {
@@ -34,17 +35,25 @@ class DrumDatabase extends Dexie {
         if (session.satisfaction === undefined) session.satisfaction = 100
       })
     })
+    this.version(4).stores({ results: 'id, sessionId, exerciseId, completedAt' }).upgrade(async (transaction) => {
+      await transaction.table('results').toCollection().modify((result: ExerciseResult) => {
+        if (!result.performanceLevel) result.performanceLevel = levelFromResultState(result.state)
+      })
+    })
   }
 }
 
 export const db = new DrumDatabase()
 
 export async function initializeDatabase() {
-  await db.transaction('rw', [db.exercises, db.sessions, db.settings, db.roadmap, db.roadmapGroups, db.foundationSkills], async () => {
+  await db.transaction('rw', [db.exercises, db.sessions, db.results, db.settings, db.roadmap, db.roadmapGroups, db.foundationSkills], async () => {
     if (await db.exercises.count() === 0) await db.exercises.bulkAdd(seedExercises)
     if (await db.sessions.count() === 0) await db.sessions.add(seedSession())
     await db.sessions.toCollection().modify((session) => {
       if (session.satisfaction === undefined) session.satisfaction = 100
+    })
+    await db.results.toCollection().modify((result) => {
+      if (!result.performanceLevel) result.performanceLevel = levelFromResultState(result.state)
     })
     const settings = await db.settings.get('settings')
     if (!settings) await db.settings.add(defaultSettings)

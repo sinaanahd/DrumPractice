@@ -1,6 +1,7 @@
 export type ExerciseCategory = 'Warm-up' | 'Timing' | 'Technique' | 'Subdivision' | 'Coordination' | 'Rudiment' | 'Transitions' | 'Internal Pulse' | 'Challenge'
 export type SkillStatus = 'New' | 'Developing' | 'Comfortable' | 'Solid'
 export type ResultState = 'Clean' | 'Good' | 'Some mistakes' | 'Difficult' | 'Failed / retry later'
+export type PerformanceLevel = 'Idiot' | 'Beginner' | 'Growing' | 'Skilled' | 'God mode'
 export type SessionStatus = 'planned' | 'active' | 'completed' | 'partial'
 export type ThemePreference = 'light' | 'dark' | 'system'
 export type RoadmapStatus = 'planned' | 'active' | 'developing' | 'comfortable' | 'solid'
@@ -40,6 +41,7 @@ export interface ExerciseResult {
   sessionExerciseId: string
   exerciseId: string
   state: ResultState
+  performanceLevel?: PerformanceLevel
   bpmUsed?: number
   mistakeCount?: number
   comfort?: number

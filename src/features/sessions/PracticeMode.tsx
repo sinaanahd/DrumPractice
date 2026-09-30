@@ -9,6 +9,7 @@ import type { Exercise, ExerciseResult, PracticeSession, Settings } from '../../
 import { formatDuration } from '../../utils/calculations'
 import { ResultForm } from './ResultForm'
 import { SessionSummary } from './SessionSummary'
+import { levelFromResultState } from '../../components/ExerciseLevelBadge'
 
 export function PracticeMode({ session, exercises, results, settings }: { session: PracticeSession; exercises: Exercise[]; results: ExerciseResult[]; settings: Settings }) {
   const active = useActiveSession()
@@ -59,7 +60,7 @@ export function PracticeMode({ session, exercises, results, settings }: { sessio
         <div className="practice-quote">“Control first. Speed will follow.”</div>
       </aside>
     </main>
-    <footer className="practice-footer"><Button variant="ghost" disabled={active.index === 0} onClick={() => go(active.index - 1)} icon={<ArrowLeft/>}>Previous</Button><div><Button variant="secondary" onClick={async () => { await db.results.put({ id: crypto.randomUUID(), sessionId: session.id, sessionExerciseId: current.id, exerciseId: exercise.id, state: 'Difficult', completedAt: new Date().toISOString(), skipped: true }); if (active.index === ordered.length - 1) await finish(); else go(active.index + 1) }} icon={<SkipForward/>}>Skip</Button><Button disabled={done} onClick={() => setLogging(true)} icon={<Check/>}>{done ? 'Completed' : 'Complete exercise'}</Button><Button variant="ghost" disabled={active.index === ordered.length - 1} aria-label="Next" onClick={() => go(active.index + 1)} icon={<ArrowRight/>}/></div></footer>
+    <footer className="practice-footer"><Button variant="ghost" disabled={active.index === 0} onClick={() => go(active.index - 1)} icon={<ArrowLeft/>}>Previous</Button><div><Button variant="secondary" onClick={async () => { const state = 'Difficult' as const; await db.results.put({ id: crypto.randomUUID(), sessionId: session.id, sessionExerciseId: current.id, exerciseId: exercise.id, state, performanceLevel: levelFromResultState(state), completedAt: new Date().toISOString(), skipped: true }); if (active.index === ordered.length - 1) await finish(); else go(active.index + 1) }} icon={<SkipForward/>}>Skip</Button><Button disabled={done} onClick={() => setLogging(true)} icon={<Check/>}>{done ? 'Completed' : 'Complete exercise'}</Button><Button variant="ghost" disabled={active.index === ordered.length - 1} aria-label="Next" onClick={() => go(active.index + 1)} icon={<ArrowRight/>}/></div></footer>
     {logging && <Modal title={`Complete · ${exercise.name}`} onClose={() => setLogging(false)} wide><ResultForm exercise={exercise} sessionExercise={current} sessionId={session.id} onCancel={() => setLogging(false)} onSave={async (result) => { await db.results.put(result); setLogging(false); if (active.index === ordered.length - 1) await finish(); else go(active.index + 1) }}/></Modal>}
     {finishing && <SessionSummary session={{ ...session, status: 'completed' }} exercises={exercises} results={sessionResults} onDone={() => { activeSessionStore.reset(); setFinishing(false) }}/>} 
   </div>
